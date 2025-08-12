@@ -8,12 +8,16 @@ function submit(): void {
 
     submitForm.addEventListener('submit', event => {
         event.preventDefault();
-
-        const deal = dealController.createDeal();
-        console.log(deal);
-        dealController.persistDeal(deal);
-
-        dealController.clearForm();
+        
+        try {
+            const deal = dealController.createDeal();
+            console.log(deal);
+            dealController.persistDeal(deal);
+            
+            dealController.clearForm();
+        } catch {
+            event.stopPropagation();
+        }
     });
 }
 

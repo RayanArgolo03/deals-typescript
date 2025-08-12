@@ -10,6 +10,7 @@ export abstract class View<T> {
         this._element = auxElement;
     }
 
+
     public update(model: T, stopTimeout?: number): void {
         this._element.innerHTML = this.createTemplate(model);
 
@@ -20,6 +21,6 @@ export abstract class View<T> {
         }
     }
 
-    public abstract createTemplate(model: T): string;
+    protected abstract createTemplate(model: T): string;
 
 }

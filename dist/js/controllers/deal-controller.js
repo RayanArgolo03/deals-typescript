@@ -1,3 +1,4 @@
+import { DaysOfWeek } from "../enums/days-of-week.js";
 import { Deal } from "../models/deal.js";
 import { AlertContainerView } from "../views/alert-container-view.js";
 import { DealsView } from "../views/deals-view.js";
@@ -11,18 +12,16 @@ export class DealController {
         this._dealsView = new DealsView("#dealsViewers");
         this._alertContainerView = new AlertContainerView("#alertContainer");
         this._messageSucessView = new MessageSuccessView("#messageSuccess");
-        this.updateAllViews();
+        this.updateDealsView();
     }
     createDeal() {
         const dateParsed = new Date(this._inputDate.value);
         this.validateDate(dateParsed);
-        const quantityParsed = parseInt(this._inputQuantity.value);
-        const valueParsed = parseFloat(this._inputValue.value);
-        return new Deal(dateParsed, quantityParsed, valueParsed);
+        return Deal.createDeal(dateParsed, this._inputQuantity.value, this._inputValue.value);
     }
     validateDate(dateParsed) {
         const dayParsed = dateParsed.getDay();
-        if (dayParsed == 0 || dayParsed == 6) {
+        if (dayParsed == DaysOfWeek.SATURDAY || dayParsed == DaysOfWeek.MONDAY) {
             this._inputDate.classList.remove("is-valid");
             this._inputDate.classList.add("is-invalid");
             throw new Error();
@@ -31,7 +30,8 @@ export class DealController {
     }
     persistDeal(deal) {
         this._deals.push(deal);
-        this.updateAllViews(false);
+        this.updateDealsView();
+        this.updateMessageView(true);
     }
     clearForm() {
         this._inputDate.value = '';
@@ -39,27 +39,23 @@ export class DealController {
         this._inputQuantity.value = '';
     }
     clearDeals() {
-        if (this._deals.length > 0) {
-            this._dealsView.update([]);
-            this._deals = [];
+        if (this._deals.length == 0) {
+            this.updateMessageView(false);
+            return;
         }
-        else {
-            this.updateAllViews(true);
-        }
-        ;
+        this._deals = [];
+        this.updateDealsView();
     }
-    updateAllViews(isFail) {
+    updateDealsView() {
         this._dealsView.update(this._deals);
-        if (isFail != undefined) {
-            if (isFail) {
-                this._alertContainerView.update(DealController.MESSAGE_ALERT, DealController.STOP_TIMEOUT);
-            }
-            else {
-                this._messageSucessView.update(DealController.MESSAGE_SUCCESS, DealController.STOP_TIMEOUT);
-            }
+    }
+    updateMessageView(hasSucess) {
+        if (!hasSucess) {
+            this._alertContainerView.update(DealController.MESSAGE_MODEL, DealController.STOP_TIMEOUT);
+            return;
         }
+        this._messageSucessView.update(DealController.MESSAGE_MODEL, DealController.STOP_TIMEOUT);
     }
 }
-DealController.MESSAGE_ALERT = "No deals for delete!";
-DealController.MESSAGE_SUCCESS = "New Deal added!";
+DealController.MESSAGE_MODEL = "Warning:";
 DealController.STOP_TIMEOUT = 2000;

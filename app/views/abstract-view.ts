@@ -2,7 +2,7 @@
 
 export abstract class View<T> {
 
-    protected _element: HTMLElement;
+    protected readonly _element: HTMLElement;
 
     constructor(selector: string | null) {
         const auxElement = document.querySelector<HTMLElement>(selector);
@@ -10,17 +10,17 @@ export abstract class View<T> {
         this._element = auxElement;
     }
 
-
     public update(model: T, stopTimeout?: number): void {
         this._element.innerHTML = this.createTemplate(model);
-
-        if (stopTimeout) {
-            setTimeout(() => {
-                this._element.innerHTML = ' ';
-            }, stopTimeout);
-        }
+        if (stopTimeout != undefined) this.removeTemplate(stopTimeout)
     }
 
     protected abstract createTemplate(model: T): string;
+
+    private removeTemplate(stopTimeout: number): void {
+        setTimeout(() => {
+            this._element.innerHTML = '';
+        }, stopTimeout);
+    }
 
 }

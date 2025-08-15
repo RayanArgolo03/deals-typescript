@@ -1,11 +1,12 @@
 
 
+import { DaysOfWeek } from "../enums/days-of-week.js";
 import { Deal } from "../models/deal.js";
 import { AlertContainerView } from "../views/alert-container-view.js";
 import { DealsView } from "../views/deals-view.js";
 import { MessageSuccessView } from "../views/message-success-view.js";
 
-export class DealController<T> {
+export class DealController {
 
     private _inputDate: HTMLInputElement;
     private _inputQuantity: HTMLInputElement;
@@ -15,9 +16,8 @@ export class DealController<T> {
     private _alertContainerView: AlertContainerView;
     private _messageSucessView: MessageSuccessView;
 
-    private static readonly MESSAGE_ALERT = "No deals for delete!";
-    private static readonly MESSAGE_SUCCESS = "New Deal added!";
-    private static readonly STOP_TIMEOUT = 2000;
+    private static readonly MESSAGE_MODEL: string = "Warning:";
+    private static readonly STOP_TIMEOUT: number = 2000;
 
     constructor() {
         this._inputDate = document.querySelector("#date");
@@ -28,38 +28,39 @@ export class DealController<T> {
         this._alertContainerView = new AlertContainerView("#alertContainer");
         this._messageSucessView = new MessageSuccessView("#messageSuccess");
 
-        this.updateAllViews();
+        this.updateDealsView();
     }
 
-
     public createDeal(): Deal {
-
 
         const dateParsed = new Date(this._inputDate.value);
         this.validateDate(dateParsed);
 
-        const quantityParsed = parseInt(this._inputQuantity.value);
-        const valueParsed = parseFloat(this._inputValue.value);
+        return Deal.createDeal(
+            dateParsed,
+            this._inputQuantity.value,
+            this._inputValue.value,
+        );
 
-        return new Deal(dateParsed, quantityParsed, valueParsed);
     }
 
-    private isValidDate(dateParsed: Date): void {
+    private validateDate(dateParsed: Date): void {
 
         const dayParsed = dateParsed.getDay();
 
-        if (dayParsed == 0 || dayParsed == 6) {
+        if (dayParsed == DaysOfWeek.SATURDAY || dayParsed == DaysOfWeek.MONDAY) {
             this._inputDate.classList.remove("is-valid");
             this._inputDate.classList.add("is-invalid");
             throw new Error();
-        } 
+        }
 
         this._inputDate.classList.remove("is-invalid");
     }
 
     public persistDeal(deal: Deal): void {
         this._deals.push(deal);
-        this.updateAllViews(false);
+        this.updateDealsView();
+        this.updateMessageView(true);
     }
 
     public clearForm(): void {
@@ -69,31 +70,34 @@ export class DealController<T> {
     }
 
     public clearDeals(): void {
-        if (this._deals.length > 0) {
-            this._dealsView.update([]);
-            this._deals = [];
-        } else {
-            this.updateAllViews(true);
-        };
-    }
 
-    public updateAllViews(isFail?: boolean): void {
-
-        this._dealsView.update(this._deals);
-
-        if (isFail != undefined) {
-
-            if (isFail) {
-                this._alertContainerView.update(
-                    DealController.MESSAGE_ALERT, DealController.STOP_TIMEOUT
-                );
-            } else {
-                this._messageSucessView.update(
-                    DealController.MESSAGE_SUCCESS, DealController.STOP_TIMEOUT
-                )
-            }
-
+        if (this._deals.length == 0) {
+            this.updateMessageView(false);
+            return;
         }
 
+        this._deals = [];
+        this.updateDealsView();
     }
+
+    private updateDealsView(): void {
+        this._dealsView.update(this._deals);
+    }
+
+    private updateMessageView(hasSucess: boolean): void {
+
+        if (!hasSucess) {
+            this._alertContainerView.update(
+                DealController.MESSAGE_MODEL,
+                DealController.STOP_TIMEOUT,
+            );
+            return;
+        }
+
+        this._messageSucessView.update(
+            DealController.MESSAGE_MODEL,
+            DealController.STOP_TIMEOUT,
+        );
+    }
+
 }

@@ -7,6 +7,14 @@ export class Deal {
         private _value: number
     ) {}
 
+    public static createDeal(dateParsed: Date, quantityString: string, valueString: string,): Deal {
+        
+        const quantityParsed = parseInt(quantityString);
+        const valueParsed = parseFloat(valueString);
+
+        return new Deal(dateParsed, quantityParsed, valueParsed);
+    }
+
     get formattedDate(): string {
         return new Intl.DateTimeFormat()
                .format(this._date);

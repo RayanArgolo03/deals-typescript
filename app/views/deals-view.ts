@@ -5,7 +5,7 @@ import { View } from "./abstract-view.js";
 
 export class DealsView extends View<Deal[]> {
 
-    protected createTemplate(model: readonly Deal[]): string {
+    protected createTemplate(model?: Deal[]): string {
         return `
           <table class="table table-hover table-bordered">
             <thead>

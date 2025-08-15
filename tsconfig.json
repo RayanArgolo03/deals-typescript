@@ -3,7 +3,8 @@
     "outDir": "dist/js",
     "target": "es6",
     "noEmitOnError": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "noImplicitOverride": true
   },
   "include": ["app/**/*"]
 }
